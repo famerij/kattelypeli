@@ -19,6 +19,8 @@ public class HandShakeBehaviour : MonoBehaviour
 
     private System.Action onSequenceFinished;
 
+    private int guestCounter = 0;
+
     #region Editor fields
     [Header("Scene objects")]
     [SerializeField]
@@ -29,6 +31,10 @@ public class HandShakeBehaviour : MonoBehaviour
     private HandGesture playerHand;
     [SerializeField]
     private HandGesture otherHand;
+    [SerializeField]
+    private Image carpetBG;
+    [SerializeField]
+    private Image palaceBG;
 
     [Header("Assets")]
     [SerializeField]
@@ -52,7 +58,7 @@ public class HandShakeBehaviour : MonoBehaviour
     void ChangeState(HandShakeState _newState)
     {
         currentState = _newState;
-
+        
         switch (_newState)
         {
             case HandShakeState.Running:
@@ -81,6 +87,7 @@ public class HandShakeBehaviour : MonoBehaviour
                 Debug.Log("Done");
                 playerHand.gameObject.SetActive(false);
                 otherHand.gameObject.SetActive(false);
+                guestCounter++;
                 if (onSequenceFinished != null)
                     onSequenceFinished();
                 break;
@@ -93,13 +100,18 @@ public class HandShakeBehaviour : MonoBehaviour
     {
         flashCanvas.worldCamera = Camera.main;
         UICanvas.worldCamera = Camera.main;
+        palaceBG.gameObject.SetActive(false);
     }
 
     public void StartHandShakeSequence(System.Action onFinished)
     {
         onSequenceFinished = onFinished;
 
-        gestureSequence = new int[Random.Range(2, 4)];
+        int sequenceCount = guestCounter / 3;
+        if (sequenceCount <= 0)
+            sequenceCount = 1;
+
+        gestureSequence = new int[sequenceCount];
         for (int i = 0; i < gestureSequence.Length; i++)
         {
             gestureSequence[i] = Random.Range(0, playerHandSprites.Count);
@@ -190,6 +202,7 @@ public class HandShakeBehaviour : MonoBehaviour
 
     IEnumerator RunSuccessAnimation()
     {
+        palaceBG.gameObject.SetActive(true);
         flashCanvas.gameObject.SetActive(true);
         playerHand.gameObject.SetActive(false);
         otherHand.gameObject.SetActive(false);
@@ -207,6 +220,7 @@ public class HandShakeBehaviour : MonoBehaviour
         DestroyImmediate(handShakeObj);
         playerHand.gameObject.SetActive(true);
         otherHand.gameObject.SetActive(true);
+        palaceBG.gameObject.SetActive(false);
         ChangeState(HandShakeState.Running);
     }
 
