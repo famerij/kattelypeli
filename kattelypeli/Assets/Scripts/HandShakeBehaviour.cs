@@ -15,6 +15,8 @@ public class HandShakeBehaviour : MonoBehaviour
     [SerializeField]
     private int currentGestureSequenceIndex = 0;
 
+    private Vector3 playerHandStartPos;
+
     private System.Action onSequenceFinished;
 
     #region Editor fields
@@ -40,11 +42,11 @@ public class HandShakeBehaviour : MonoBehaviour
 
     [Header("Other")]
     [SerializeField]
-    private Slider timerSlider;
+    private Slider patienceSlider;
     [SerializeField]
-    private float handShakeTimeLimit = 3f;
-    [SerializeField]
-    private float handShakeTimer = 0f;
+    private float patienceTimeLimit = 3f;
+
+    private float patienceTimer = 0f;
     #endregion
 
     void ChangeState(HandShakeState _newState)
@@ -64,7 +66,6 @@ public class HandShakeBehaviour : MonoBehaviour
 
                 playerHand.Disable();
                 otherHand.SetSprite(gestureSequence[currentGestureSequenceIndex], otherHandSprites[gestureSequence[currentGestureSequenceIndex]]);
-                handShakeTimer = 0f;
                 break;
             case HandShakeState.Success:
                 Debug.Log("Success!");
@@ -106,12 +107,16 @@ public class HandShakeBehaviour : MonoBehaviour
 
         currentGestureSequenceIndex = 0;
 
-        if (timerSlider != null) timerSlider.maxValue = handShakeTimeLimit;
+        if (patienceSlider != null) patienceSlider.maxValue = patienceTimeLimit;
 
         flashCanvas.gameObject.SetActive(false);
 
         playerHand.gameObject.SetActive(true);
+        playerHandStartPos = playerHand.transform.position;
+
         otherHand.gameObject.SetActive(true);
+
+        patienceTimer = patienceTimeLimit;
 
         ChangeState(HandShakeState.Running);
     }
@@ -119,8 +124,8 @@ public class HandShakeBehaviour : MonoBehaviour
     void Update()
     {
         // Debug
-        //if (Input.GetKeyDown(KeyCode.Return))
-        //    StartHandShakeSequence();
+        if (Input.GetKeyDown(KeyCode.Return))
+            StartHandShakeSequence(null);
 
         if (currentState == HandShakeState.Done)
         {
@@ -131,46 +136,46 @@ public class HandShakeBehaviour : MonoBehaviour
         {
             HandleInput();
 
-            handShakeTimer += Time.deltaTime;
+            patienceTimer -= Time.deltaTime;
+        }
 
-            if (handShakeTimer > handShakeTimeLimit)
-            {
-                ChangeState(HandShakeState.Fail);
-            }
+        if (patienceTimer <= 0f)
+        {
+            ChangeState(HandShakeState.Done);
+        }
 
-            if (timerSlider != null)
-            {
-                timerSlider.value =  handShakeTimer;
-            }
+        if (patienceSlider != null)
+        {
+            patienceSlider.value = patienceTimer;
         }
     }
 
     void HandleInput()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKey(KeyCode.UpArrow))
         {
-            StartCoroutine(ChangePlayerHandSprite(0));
+            if (playerHand.CurrentSpriteIndex != 0)
+                StartCoroutine(ChangePlayerHandSprite(0));
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        else if (Input.GetKey(KeyCode.LeftArrow))
         {
-            StartCoroutine(ChangePlayerHandSprite(1));
+            if (playerHand.CurrentSpriteIndex != 1)
+                StartCoroutine(ChangePlayerHandSprite(1));
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
-            StartCoroutine(ChangePlayerHandSprite(2));
+            if (playerHand.CurrentSpriteIndex != 2)
+                StartCoroutine(ChangePlayerHandSprite(2));
         }
-        //else if (Input.GetAxis("Button4") > 0)
-        //{
-        //    playerHand.SetSprite(3, playerHandSprites[3]);
-        //}
-        //else if (Input.GetAxis("Button5") > 0)
-        //{
-        //    playerHand.SetSprite(4, playerHandSprites[4]);
-        //}
+        else
+        {
+            ChangePlayerHandSprite(-1);
+            playerHand.SetSprite(-1, playerChangeSprite);
+        }
 
-        if (currentState == HandShakeState.Running && Input.GetKeyDown(KeyCode.UpArrow))
+        if (currentState == HandShakeState.Running && Input.GetKeyDown(KeyCode.Space))
         {
-            StartCoroutine(OfferHandShakeAnimation());
+            CheckGesture();
         }
     }
 
@@ -179,7 +184,8 @@ public class HandShakeBehaviour : MonoBehaviour
         playerHand.handSpriteRenderer.enabled = true;
         playerHand.handSpriteRenderer.sprite = playerChangeSprite;
         yield return new WaitForSeconds(.1f);
-        playerHand.SetSprite(index, playerHandSprites[index]);
+        if (index != -1)
+            playerHand.SetSprite(index, playerHandSprites[index]);
     }
 
     IEnumerator RunSuccessAnimation()
@@ -204,23 +210,21 @@ public class HandShakeBehaviour : MonoBehaviour
         ChangeState(HandShakeState.Running);
     }
 
-    IEnumerator OfferHandShakeAnimation()
-    {
-        float timer = 0f;
+    //void OfferHandShakeAnimation()
+    //{
+    //    //float timer = 0f;
 
-        Vector3 pos = playerHand.transform.position;
+    //    //while (timer < .5f)
+    //    //{
+    //    //    playerHand.transform.position = Vector3.Lerp(playerHand.transform.position, playerHand.transform.position + Vector3.up, Time.deltaTime * 2);
+    //    //    timer += Time.deltaTime;
+    //    //    yield return new WaitForEndOfFrame();
+    //    //}
 
-        while (timer < 1f)
-        {
-            playerHand.transform.position = Vector3.Lerp(playerHand.transform.position, playerHand.transform.position + Vector3.up, Time.deltaTime);
-            timer += Time.deltaTime;
-            yield return new WaitForEndOfFrame();
-        }
+    //    //playerHand.transform.position = playerHandStartPos;
 
-        playerHand.transform.position = pos;
-
-        CheckGesture();
-    }
+    //    CheckGesture();
+    //}
 
     void CheckGesture()
     {

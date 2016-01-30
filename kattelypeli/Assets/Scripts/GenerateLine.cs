@@ -7,9 +7,6 @@ public class GenerateLine : MonoBehaviour
 
     private LineState currentState = LineState.MovingIn;
 
-    [SerializeField]
-    private GameObject handShakeBehaviourPrefab;
-
     private HandShakeBehaviour handShakeBehaviour;
 
     [SerializeField]
@@ -76,8 +73,7 @@ public class GenerateLine : MonoBehaviour
             middletarget -= 2f;
         }
 
-        GameObject hsbObj = Instantiate(handShakeBehaviourPrefab);
-        handShakeBehaviour = hsbObj.GetComponent<HandShakeBehaviour>();
+        handShakeBehaviour = FindObjectOfType<HandShakeBehaviour>();
         handShakeBehaviour.gameObject.SetActive(false);
 
         ChangeState(LineState.MovingIn);
