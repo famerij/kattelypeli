@@ -22,6 +22,8 @@ public class HandShakeBehaviour : MonoBehaviour
     [SerializeField]
     private Canvas flashCanvas;
     [SerializeField]
+    private Canvas UICanvas;
+    [SerializeField]
     private HandGesture playerHand;
     [SerializeField]
     private HandGesture otherHand;
@@ -86,10 +88,11 @@ public class HandShakeBehaviour : MonoBehaviour
         }
     }
 
-    //void Awake()
-    //{
-    //    StartHandShakeSequence();
-    //}
+    void Awake()
+    {
+        flashCanvas.worldCamera = Camera.main;
+        UICanvas.worldCamera = Camera.main;
+    }
 
     public void StartHandShakeSequence(System.Action onFinished)
     {

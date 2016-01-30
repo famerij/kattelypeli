@@ -68,7 +68,7 @@ public class GenerateLine : MonoBehaviour
         for (int i = 0; i < guests.Length; i++)
         {
             guest = (Instantiate(guestInstatiate, new Vector3(xPos, -6.5f, zPos), Quaternion.identity) as GameObject);
-            guest.transform.position = new Vector3(guest.transform.position.x, guest.transform.position.y + guest.GetComponent<AnimateGuest>().yOffset, guest.transform.position.z);
+            guest.transform.position = new Vector3(guest.transform.position.x, guest.transform.position.y + guest.GetComponent<AnimateGuest>().yOffset, transform.position.z - .5f);
             guests[i] = guest;
             xPos -= 2f;
             zPos = 5;
