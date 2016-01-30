@@ -8,32 +8,31 @@ using System;
 public class GenerateNames : MonoBehaviour
 {
 
-    List<string> cName = new List<string>();
-    List<string> surname = new List<string>();
-    List<string> firstTitle = new List<string>();
-    List<string> secondTitle = new List<string>();
+    public List<string> nameList = new List<string>();
+    public List<string> surnameList = new List<string>();
+    public List<string> firstTitleList = new List<string>();
+    public List<string> secondTitleList = new List<string>();
 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
+        Names();
+        Surnames();
+        FirstTitle();
+        SecondTitle();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     void Names()
     {
         try
         {
-            using (StreamReader sr = new StreamReader("Names.txt", Encoding.Default))
+            using (StreamReader sr = new StreamReader(Path.Combine(Application.dataPath, "Names/names.txt"), Encoding.GetEncoding("ISO-8859-1")))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    cName.Add(line);
+                    nameList.Add(line);
                 }
             }
         }
@@ -50,12 +49,12 @@ public class GenerateNames : MonoBehaviour
     {
         try
         {
-            using (StreamReader sr = new StreamReader("Surnames.txt", Encoding.Default))
+            using (StreamReader sr = new StreamReader(Path.Combine(Application.dataPath, "Names/Surnames.txt"), Encoding.GetEncoding("ISO-8859-1")))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    surname.Add(line);
+                    surnameList.Add(line);
                 }
             }
         }
@@ -72,12 +71,12 @@ public class GenerateNames : MonoBehaviour
     {
         try
         {
-            using (StreamReader sr = new StreamReader("FirstTitle.txt", Encoding.Default))
+            using (StreamReader sr = new StreamReader(Path.Combine(Application.dataPath, "Names/FirstTitle.txt"), Encoding.GetEncoding("ISO-8859-1")))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    firstTitle.Add(line);
+                    firstTitleList.Add(line);
                 }
             }
         }
@@ -94,12 +93,12 @@ public class GenerateNames : MonoBehaviour
     {
         try
         {
-            using (StreamReader sr = new StreamReader("SecondTitle.txt", Encoding.Default))
+            using (StreamReader sr = new StreamReader(Path.Combine(Application.dataPath, "Names/SecondTitle.txt"), Encoding.GetEncoding("ISO-8859-1")))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    secondTitle.Add(line);
+                    secondTitleList.Add(line);
                 }
             }
         }

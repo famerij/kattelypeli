@@ -89,6 +89,7 @@ public class GenerateLine : MonoBehaviour
             {
                 x = 0;
             }
+            MoveTheLine()
         }
     }
 }

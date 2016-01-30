@@ -11,9 +11,20 @@ public class GenerateCharacter : MonoBehaviour
 
     private GameObject head, body;
     private int i;
+
+    private string cName, surname, firstTitle, secondTitle;
+
+    private GenerateNames names;
+
     // Use this for initialization
     void Start()
     {
+        names = FindObjectOfType<GenerateNames>();
+
+        cName = names.nameList[Random.Range(0, names.nameList.Count)];
+        surname = names.surnameList[Random.Range(0, names.surnameList.Count)];
+        firstTitle = names.firstTitleList[Random.Range(0, names.firstTitleList.Count)];
+        secondTitle = names.secondTitleList[Random.Range(0, names.secondTitleList.Count)];
 
         i = Random.Range(0, heads.Length);
         body = Instantiate(bodies[i], transform.position, Quaternion.identity) as GameObject;
@@ -26,6 +37,8 @@ public class GenerateCharacter : MonoBehaviour
         head.transform.SetParent(transform);
         head.transform.localScale = Vector3.one;
         head.transform.localPosition = Vector3.zero;
+
+        print(cName + " " + surname + " " + firstTitle + " " + secondTitle);
 
     }
 
@@ -42,6 +55,11 @@ public class GenerateCharacter : MonoBehaviour
         Destroy(head);
         Destroy(body);
 
+        cName = names.nameList[Random.Range(0, names.nameList.Count)];
+        surname = names.surnameList[Random.Range(0, names.surnameList.Count)];
+        firstTitle = names.firstTitleList[Random.Range(0, names.firstTitleList.Count)];
+        secondTitle = names.secondTitleList[Random.Range(0, names.secondTitleList.Count)];
+
         i = Random.Range(0, heads.Length);
         body = Instantiate(bodies[i], transform.position, Quaternion.identity) as GameObject;
         body.transform.SetParent(transform);
@@ -53,5 +71,8 @@ public class GenerateCharacter : MonoBehaviour
         head.transform.SetParent(transform);
         head.transform.localScale = Vector3.one;
         head.transform.localPosition = Vector3.zero;
+
+        print(cName + " " + surname + " " + firstTitle + " " + secondTitle);
+
     }
 }
