@@ -42,7 +42,7 @@ public class GenerateCharacter : MonoBehaviour
         head = Instantiate(heads[i], transform.position, Quaternion.identity) as GameObject;
         head.transform.SetParent(transform);
         head.transform.localScale = Vector3.one;
-        head.transform.localPosition = Vector3.zero;
+        head.transform.localPosition = new Vector3(0, 0, -1);
 
         print(cName + " " + surname + " " + firstTitle + " " + secondTitle);
 
@@ -76,7 +76,7 @@ public class GenerateCharacter : MonoBehaviour
         head = Instantiate(heads[i], transform.position, Quaternion.identity) as GameObject;
         head.transform.SetParent(transform);
         head.transform.localScale = Vector3.one;
-        head.transform.localPosition = Vector3.zero;
+        head.transform.localPosition = new Vector3(0, 0, -1);
 
         print(cName + " " + surname + " " + firstTitle + " " + secondTitle);
 

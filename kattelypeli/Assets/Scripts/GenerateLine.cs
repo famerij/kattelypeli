@@ -149,6 +149,7 @@ public class GenerateLine : MonoBehaviour
     void ShakingHandsFinished()
     {
         handShakeBehaviour.gameObject.SetActive(false);
+        guests[x].GetComponentInChildren<ChangeFace>().isHappy(false);
         ChangeState(LineState.MovingOut);
     }
 
