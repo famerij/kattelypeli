@@ -45,14 +45,11 @@ public class AnimateGuest : MonoBehaviour {
 
         middle = new Vector3(0, 0, 0);
 
-        target = transform.position;
+        //target = transform.position;
 	}
 
     // Update is called once per frame
     void Update() {
-
-        transform.position = Vector3.MoveTowards(transform.position,
-        target, Time.deltaTime * moveSpeed);
 
         if (Mathf.Approximately(transform.position.x, target.x))
         {

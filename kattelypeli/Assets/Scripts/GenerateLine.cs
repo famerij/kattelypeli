@@ -20,16 +20,21 @@ public class GenerateLine : MonoBehaviour
 
     [SerializeField]
     private float speed = 5f;
-    private float xPos = 1f;
+    private float xPos = -7f;
     private float zPos = 0;
     private float scale = 1;
     private int x;
     private int y;
 
+    private float middletarget = 1f;
+
     private bool moving;
 
     bool isGuestMoving = false;
     float delayTimer = 0f;
+
+    public Vector3 target;
+
 
     void ChangeState(LineState _newState)
     {
@@ -44,6 +49,10 @@ public class GenerateLine : MonoBehaviour
                 delayTimer = 0f;
                 break;
             case LineState.MovingOut:
+                foreach (var guest in guests)
+                {
+                    guest.GetComponent<AnimateGuest>().moving = true;
+                }
                 MoveOut();
                 break;
             default:
@@ -63,7 +72,8 @@ public class GenerateLine : MonoBehaviour
             guests[i] = guest;
             xPos -= 2f;
             zPos = 5;
-            guests[i].GetComponent<AnimateGuest>().moving = false;
+            guest.GetComponent<AnimateGuest>().target = new Vector3(middletarget, guest.transform.position.y, guest.transform.position.z);
+            middletarget -= 2f;
         }
 
         GameObject hsbObj = Instantiate(handShakeBehaviourPrefab);
@@ -93,6 +103,7 @@ public class GenerateLine : MonoBehaviour
 
                 foreach(var guest in guests)
                 {
+                    guest.transform.position = Vector3.MoveTowards(guest.transform.position, guest.GetComponent<AnimateGuest>().target, Time.deltaTime * 5);
                     if (guest.GetComponent<AnimateGuest>().moving)
                         isGuestMoving = true;
                 }
@@ -115,9 +126,10 @@ public class GenerateLine : MonoBehaviour
                 break;
             case LineState.MovingOut:
                 isGuestMoving = false;
-
+                MoveOut();
                 foreach (var guest in guests)
                 {
+                    guest.transform.position = Vector3.MoveTowards(guest.transform.position, guest.GetComponent<AnimateGuest>().target, Time.deltaTime * 5);
                     if (guest.GetComponent<AnimateGuest>().moving)
                         isGuestMoving = true;
                 }
@@ -163,18 +175,17 @@ public class GenerateLine : MonoBehaviour
 
         print(guests[x].GetComponent<AnimateGuest>().target);
 
-        if (guests[x].transform.position.x == guests[x].GetComponent<AnimateGuest>().target.x)
+        if (Mathf.Approximately(guests[x].transform.position.x, guests[x].GetComponent<AnimateGuest>().target.x))
         {
+            print("WHOT");
             guests[x].transform.position = new Vector3(xPos, guests[x].transform.position.y, guests[x].transform.position.z);
             guests[x].GetComponent<AnimateGuest>().target = new Vector3(xPos, guests[x].transform.position.y, guests[x].transform.position.z);
             guests[x].GetComponentInChildren<GenerateCharacter>().Reroll();
             x++;
-            moving = false;
             if(x >= guests.Length)
             {
                 x = 0;
             }
-            MoveTheLine()
         }
     }
 }
