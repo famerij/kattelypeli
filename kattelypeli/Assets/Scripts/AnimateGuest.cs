@@ -19,8 +19,7 @@ public class AnimateGuest : MonoBehaviour {
     private float timerZ = 0f;
     [SerializeField]
     private float yPos;
-    [SerializeField]
-    private float yOffset;
+    public float yOffset;
 
     [SerializeField]
     private float distance;
@@ -55,9 +54,9 @@ public class AnimateGuest : MonoBehaviour {
         transform.position = Vector3.MoveTowards(transform.position,
         target, Time.deltaTime * moveSpeed);
 
-        if (transform.position == target)
+        if (Mathf.Approximately(transform.position.x, target.x))
         {
-            timerY = Mathf.Lerp(timerY, 0, 10);
+            timerY = Mathf.Lerp(0, 1, 0);
             moving = false;
         }
         else moving = true;
@@ -84,7 +83,7 @@ public class AnimateGuest : MonoBehaviour {
             {
                 timerZ = 0;
             }
-            transform.position = new Vector3(transform.position.x, yPos + (curveY.Evaluate(timerY)*0.5f) /*+ yOffset*/, transform.position.z);
+            transform.position = new Vector3(transform.position.x, yPos + (curveY.Evaluate(timerY)*0.5f), transform.position.z);
 
             transform.rotation = Quaternion.Euler(transform.rotation.x, transform.rotation.y, curveZ.Evaluate(timerZ) * 5);
         }

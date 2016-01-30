@@ -53,6 +53,5 @@ public class GenerateCharacter : MonoBehaviour
         head.transform.SetParent(transform);
         head.transform.localScale = Vector3.one;
         head.transform.localPosition = Vector3.zero;
-
     }
 }
