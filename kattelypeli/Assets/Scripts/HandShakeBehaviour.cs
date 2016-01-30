@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class HandShakeBehaviour : MonoBehaviour
 {
-    public enum HandShakeState { Running, Success, Fail, Done }
+    public enum HandShakeState { Running, Success, Fail, Done, GameOver }
     
     [SerializeField]
     private HandShakeState currentState;
@@ -17,9 +17,11 @@ public class HandShakeBehaviour : MonoBehaviour
 
     private Vector3 playerHandStartPos;
 
-    private System.Action onSequenceFinished;
+    private System.Action<bool> onSequenceFinished;
 
     private int guestCounter = 0;
+    private int disappointedGuests = 0;
+    private int failedShakes = 0;
 
     #region Editor fields
     [Header("Scene objects")]
@@ -35,6 +37,12 @@ public class HandShakeBehaviour : MonoBehaviour
     private Image carpetBG;
     [SerializeField]
     private Image palaceBG;
+    [SerializeField]
+    private GameObject gameOverCanvas;
+    [SerializeField]
+    private Text gameOverComment;
+    [SerializeField]
+    private Slider gameOverSlider;
 
     [Header("Assets")]
     [SerializeField]
@@ -53,6 +61,7 @@ public class HandShakeBehaviour : MonoBehaviour
     private float patienceTimeLimit = 3f;
 
     private float patienceTimer = 0f;
+    private bool decreasePatience = true;
     #endregion
 
     void ChangeState(HandShakeState _newState)
@@ -63,6 +72,8 @@ public class HandShakeBehaviour : MonoBehaviour
         {
             case HandShakeState.Running:
                 Debug.Log("New hand shake started");
+
+                decreasePatience = true;
 
                 if (currentGestureSequenceIndex >= gestureSequence.Length)
                 {
@@ -81,6 +92,7 @@ public class HandShakeBehaviour : MonoBehaviour
             case HandShakeState.Fail:
                 Debug.Log("Fail!");
                 currentGestureSequenceIndex++;
+                failedShakes++;
                 ChangeState(HandShakeState.Running);
                 break;
             case HandShakeState.Done:
@@ -88,8 +100,29 @@ public class HandShakeBehaviour : MonoBehaviour
                 playerHand.gameObject.SetActive(false);
                 otherHand.gameObject.SetActive(false);
                 guestCounter++;
+                float failedShakeRatio = (float)failedShakes / gestureSequence.Length;
+                bool failed = false;
+                Debug.Log("FailedShakeRatio = " + failedShakeRatio);
+                if (failedShakeRatio == 1f)
+                {
+                    disappointedGuests++;
+                    ChangeState(HandShakeState.GameOver);
+                }
+                if (failedShakeRatio > .5f)
+                {
+                    disappointedGuests++;
+                    Debug.Log("Guest left disappointed");
+                    failed = true;
+                }
                 if (onSequenceFinished != null)
-                    onSequenceFinished();
+                    onSequenceFinished(failed);
+                break;
+            case HandShakeState.GameOver:
+                gameOverSlider.value = (float)disappointedGuests / guestCounter;
+                gameOverComment.text = disappointedGuests + "/" + guestCounter + " vieraista olivat pettyneitä.";
+                gameOverCanvas.SetActive(true);
+                FindObjectOfType<GenerateLine>().enabled = false;
+                this.enabled = false;
                 break;
             default:
                 break;
@@ -101,9 +134,10 @@ public class HandShakeBehaviour : MonoBehaviour
         flashCanvas.worldCamera = Camera.main;
         UICanvas.worldCamera = Camera.main;
         palaceBG.gameObject.SetActive(false);
+        gameOverCanvas.SetActive(false);
     }
 
-    public void StartHandShakeSequence(System.Action onFinished)
+    public void StartHandShakeSequence(System.Action<bool> onFinished)
     {
         onSequenceFinished = onFinished;
 
@@ -129,6 +163,7 @@ public class HandShakeBehaviour : MonoBehaviour
         otherHand.gameObject.SetActive(true);
 
         patienceTimer = patienceTimeLimit;
+        failedShakes = 0;
 
         ChangeState(HandShakeState.Running);
     }
@@ -139,12 +174,12 @@ public class HandShakeBehaviour : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return))
             StartHandShakeSequence(null);
 
-        if (currentState == HandShakeState.Done)
+        if (currentState == HandShakeState.Done || currentState == HandShakeState.GameOver)
         {
             return;
         }
         
-        if (currentState == HandShakeState.Running)
+        if (currentState == HandShakeState.Running && decreasePatience)
         {
             HandleInput();
 
@@ -164,31 +199,34 @@ public class HandShakeBehaviour : MonoBehaviour
 
     void HandleInput()
     {
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             if (playerHand.CurrentSpriteIndex != 0)
                 StartCoroutine(ChangePlayerHandSprite(0));
+            StartCoroutine(CheckGestureDelayed());
         }
-        else if (Input.GetKey(KeyCode.LeftArrow))
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             if (playerHand.CurrentSpriteIndex != 1)
                 StartCoroutine(ChangePlayerHandSprite(1));
+            StartCoroutine(CheckGestureDelayed());
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             if (playerHand.CurrentSpriteIndex != 2)
                 StartCoroutine(ChangePlayerHandSprite(2));
+            StartCoroutine(CheckGestureDelayed());
         }
-        else
-        {
-            ChangePlayerHandSprite(-1);
-            playerHand.SetSprite(-1, playerChangeSprite);
-        }
+        //else
+        //{
+        //    ChangePlayerHandSprite(-1);
+        //    playerHand.SetSprite(-1, playerChangeSprite);
+        //}
 
-        if (currentState == HandShakeState.Running && Input.GetKeyDown(KeyCode.Space))
-        {
-            CheckGesture();
-        }
+        //if (currentState == HandShakeState.Running && Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    CheckGesture();
+        //}
     }
 
     IEnumerator ChangePlayerHandSprite(int index)
@@ -224,21 +262,13 @@ public class HandShakeBehaviour : MonoBehaviour
         ChangeState(HandShakeState.Running);
     }
 
-    //void OfferHandShakeAnimation()
-    //{
-    //    //float timer = 0f;
+    IEnumerator CheckGestureDelayed()
+    {
+        decreasePatience = false;
+        yield return new WaitForSeconds(.2f);
 
-    //    //while (timer < .5f)
-    //    //{
-    //    //    playerHand.transform.position = Vector3.Lerp(playerHand.transform.position, playerHand.transform.position + Vector3.up, Time.deltaTime * 2);
-    //    //    timer += Time.deltaTime;
-    //    //    yield return new WaitForEndOfFrame();
-    //    //}
-
-    //    //playerHand.transform.position = playerHandStartPos;
-
-    //    CheckGesture();
-    //}
+        CheckGesture();
+    }
 
     void CheckGesture()
     {

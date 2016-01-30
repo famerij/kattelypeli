@@ -36,7 +36,6 @@ public class GenerateLine : MonoBehaviour
 
     public Vector3 target;
 
-
     void ChangeState(LineState _newState)
     {
         currentState = _newState;
@@ -85,6 +84,10 @@ public class GenerateLine : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        }
 
         guestName.text = guests[x].GetComponentInChildren<GenerateCharacter>().WholeName;
 
@@ -146,7 +149,7 @@ public class GenerateLine : MonoBehaviour
         }
     }
 
-    void ShakingHandsFinished()
+    void ShakingHandsFinished(bool failed)
     {
         handShakeBehaviour.gameObject.SetActive(false);
         ChangeState(LineState.MovingOut);
@@ -177,11 +180,11 @@ public class GenerateLine : MonoBehaviour
     {
         guests[x].GetComponent<AnimateGuest>().target = new Vector3(15, guests[x].transform.position.y, guests[x].transform.position.z);
 
-        print(guests[x].GetComponent<AnimateGuest>().target);
+        //print(guests[x].GetComponent<AnimateGuest>().target);
 
         if (Mathf.Approximately(guests[x].transform.position.x, guests[x].GetComponent<AnimateGuest>().target.x))
         {
-            print("WHOT");
+            //print("WHOT");
             guests[x].transform.position = new Vector3(xPos, guests[x].transform.position.y, guests[x].transform.position.z);
             guests[x].GetComponent<AnimateGuest>().target = new Vector3(xPos, guests[x].transform.position.y, guests[x].transform.position.z);
             guests[x].GetComponentInChildren<GenerateCharacter>().Reroll();

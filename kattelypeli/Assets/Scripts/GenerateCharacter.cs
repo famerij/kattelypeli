@@ -48,15 +48,15 @@ public class GenerateCharacter : MonoBehaviour
 
     }
 
-    void Update()
-    {
-        if(Input.GetButtonDown("Fire1"))
-        {
-            Reroll();
-        }
-    }
+    //void Update()
+    //{
+    //    //if(Input.GetButtonDown("Fire1"))
+    //    //{
+    //    //    Reroll();
+    //    //}
+    //}
 
-   public void Reroll()
+    public void Reroll()
     {
         Destroy(head);
         Destroy(body);
