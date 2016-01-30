@@ -15,6 +15,8 @@ public class HandShakeBehaviour : MonoBehaviour
     [SerializeField]
     private int currentGestureSequenceIndex = 0;
 
+    private System.Action onSequenceFinished;
+
     #region Editor fields
     [Header("Scene objects")]
     [SerializeField]
@@ -23,12 +25,10 @@ public class HandShakeBehaviour : MonoBehaviour
     private HandGesture playerHand;
     [SerializeField]
     private HandGesture otherHand;
-    [SerializeField]
-    private SpriteRenderer successSprite;
 
     [Header("Assets")]
     [SerializeField]
-    private List<Sprite> successSprites;
+    private List<GameObject> handShakeAnimations;
     [SerializeField]
     private List<Sprite> playerHandSprites;
     [SerializeField]
@@ -78,19 +78,23 @@ public class HandShakeBehaviour : MonoBehaviour
                 Debug.Log("Done");
                 playerHand.gameObject.SetActive(false);
                 otherHand.gameObject.SetActive(false);
+                if (onSequenceFinished != null)
+                    onSequenceFinished();
                 break;
             default:
                 break;
         }
     }
-    
-    void Awake()
+
+    //void Awake()
+    //{
+    //    StartHandShakeSequence();
+    //}
+
+    public void StartHandShakeSequence(System.Action onFinished)
     {
-        StartHandShakeSequence();
-    }
-    
-    void StartHandShakeSequence()
-    {
+        onSequenceFinished = onFinished;
+
         gestureSequence = new int[Random.Range(2, 4)];
         for (int i = 0; i < gestureSequence.Length; i++)
         {
@@ -102,7 +106,6 @@ public class HandShakeBehaviour : MonoBehaviour
         if (timerSlider != null) timerSlider.maxValue = handShakeTimeLimit;
 
         flashCanvas.gameObject.SetActive(false);
-        successSprite.enabled = false;
 
         playerHand.gameObject.SetActive(true);
         otherHand.gameObject.SetActive(true);
@@ -113,8 +116,8 @@ public class HandShakeBehaviour : MonoBehaviour
     void Update()
     {
         // Debug
-        if (Input.GetKeyDown(KeyCode.Return))
-            StartHandShakeSequence();
+        //if (Input.GetKeyDown(KeyCode.Return))
+        //    StartHandShakeSequence();
 
         if (currentState == HandShakeState.Done)
         {
@@ -178,16 +181,21 @@ public class HandShakeBehaviour : MonoBehaviour
 
     IEnumerator RunSuccessAnimation()
     {
-        successSprite.sprite = successSprites[playerHand.CurrentSpriteIndex];
-
         flashCanvas.gameObject.SetActive(true);
         playerHand.gameObject.SetActive(false);
         otherHand.gameObject.SetActive(false);
-        successSprite.enabled = true;
         yield return new WaitForSeconds(.1f);
         flashCanvas.gameObject.SetActive(false);
-        yield return new WaitForSeconds(.5f);
-        successSprite.enabled = false;
+
+        GameObject handShakeObj = Instantiate(handShakeAnimations[playerHand.CurrentSpriteIndex]);
+        Animation handShakeAnim = handShakeObj.GetComponent<Animation>();
+        
+        while (handShakeAnim.isPlaying)
+        {
+            yield return null;
+        }
+
+        DestroyImmediate(handShakeObj);
         playerHand.gameObject.SetActive(true);
         otherHand.gameObject.SetActive(true);
         ChangeState(HandShakeState.Running);

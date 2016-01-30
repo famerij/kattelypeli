@@ -3,6 +3,14 @@ using System.Collections;
 
 public class GenerateLine : MonoBehaviour
 {
+    public enum LineState { MovingIn, ShakingHands, MovingOut }
+
+    private LineState currentState = LineState.MovingIn;
+
+    [SerializeField]
+    private GameObject handShakeBehaviourPrefab;
+
+    private HandShakeBehaviour handShakeBehaviour;
 
     [SerializeField]
     private GameObject[] guests;
@@ -20,6 +28,29 @@ public class GenerateLine : MonoBehaviour
 
     private bool moving;
 
+    bool isGuestMoving = false;
+    float delayTimer = 0f;
+
+    void ChangeState(LineState _newState)
+    {
+        currentState = _newState;
+
+        switch (currentState)
+        {
+            case LineState.MovingIn:
+                MoveTheLine();
+                break;
+            case LineState.ShakingHands:
+                delayTimer = 0f;
+                break;
+            case LineState.MovingOut:
+                MoveOut();
+                break;
+            default:
+                break;
+        }
+    }
+
     // Use this for initialization
     void Start()
     {
@@ -34,22 +65,76 @@ public class GenerateLine : MonoBehaviour
             zPos = 5;
             guests[i].GetComponent<AnimateGuest>().moving = false;
         }
+
+        GameObject hsbObj = Instantiate(handShakeBehaviourPrefab);
+        handShakeBehaviour = hsbObj.GetComponent<HandShakeBehaviour>();
+        handShakeBehaviour.gameObject.SetActive(false);
+
+        ChangeState(LineState.MovingIn);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (moving && Input.GetButtonDown("Fire2"))
-        {
-            MoveOut();
-        }
-        if (Input.GetButtonDown("Fire2") && !moving)
-        {
-            moving = true;
-            print("I'm gonna see the president!!");
-            MoveTheLine();
-        }
+        //if (moving && Input.GetButtonDown("Fire2"))
+        //{
+        //    MoveOut();
+        //}
+        //if (Input.GetButtonDown("Fire2") && !moving)
+        //{
+        //    moving = true;
+        //    print("I'm gonna see the president!!");
+        //    MoveTheLine();
+        //}
 
+        switch (currentState)
+        {
+            case LineState.MovingIn:
+                isGuestMoving = false;
+
+                foreach(var guest in guests)
+                {
+                    if (guest.GetComponent<AnimateGuest>().moving)
+                        isGuestMoving = true;
+                }
+
+                if (!isGuestMoving)
+                {
+                    // Start shaking with delay
+                    if (delayTimer > 1f)
+                    {
+                        handShakeBehaviour.gameObject.SetActive(true);
+                        handShakeBehaviour.StartHandShakeSequence(ShakingHandsFinished);
+                        ChangeState(LineState.ShakingHands);
+                    }
+                    else
+                        delayTimer += Time.deltaTime;
+                }
+                break;
+            case LineState.ShakingHands:
+                
+                break;
+            case LineState.MovingOut:
+                isGuestMoving = false;
+
+                foreach (var guest in guests)
+                {
+                    if (guest.GetComponent<AnimateGuest>().moving)
+                        isGuestMoving = true;
+                }
+                if (!isGuestMoving)
+                {
+                    ChangeState(LineState.MovingIn);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void ShakingHandsFinished()
+    {
+        handShakeBehaviour.gameObject.SetActive(false);
+        ChangeState(LineState.MovingOut);
     }
 
     void MoveTheLine()
