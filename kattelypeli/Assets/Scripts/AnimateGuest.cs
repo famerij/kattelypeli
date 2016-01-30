@@ -85,10 +85,4 @@ public class AnimateGuest : MonoBehaviour {
             transform.rotation = Quaternion.Euler(transform.rotation.x, transform.rotation.y, curveZ.Evaluate(timerZ) * 5);
         }
     }
-
-    void OnGUI()
-    {
-        string stringToEdit = "KAKKA";
-        GUI.Label(new Rect(10, 10, 200, 20), stringToEdit);
-    }
 }

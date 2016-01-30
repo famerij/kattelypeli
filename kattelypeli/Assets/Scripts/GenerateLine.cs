@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class GenerateLine : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class GenerateLine : MonoBehaviour
     private LineState currentState = LineState.MovingIn;
 
     private HandShakeBehaviour handShakeBehaviour;
+
+    [SerializeField]
+    private Text guestName;
 
     [SerializeField]
     private GameObject[] guests;
@@ -81,6 +85,9 @@ public class GenerateLine : MonoBehaviour
 
     void Update()
     {
+
+        guestName.text = guests[x].GetComponentInChildren<GenerateCharacter>().WholeName;
+
         //if (moving && Input.GetButtonDown("Fire2"))
         //{
         //    MoveOut();
@@ -148,6 +155,7 @@ public class GenerateLine : MonoBehaviour
     void MoveTheLine()
     {
         guests[x].GetComponent<AnimateGuest>().target = new Vector3(5, guests[x].transform.position.y, guests[x].transform.position.z);
+        guestName.text = guests[x].GetComponentInChildren<GenerateCharacter>().WholeName;
 
         xPos = 1;
         for (y = x + 1; y < guests.Length; y++)

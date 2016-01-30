@@ -14,6 +14,12 @@ public class GenerateCharacter : MonoBehaviour
 
     private string cName, surname, firstTitle, secondTitle;
 
+    public string WholeName
+    {
+        get { return cName + " " + surname + ", " + firstTitle + " " + secondTitle; }
+    }
+
+
     private GenerateNames names;
 
     // Use this for initialization
