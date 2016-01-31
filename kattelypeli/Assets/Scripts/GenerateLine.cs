@@ -12,6 +12,8 @@ public class GenerateLine : MonoBehaviour
 
     [SerializeField]
     private Text guestName;
+    [SerializeField]
+    private Text quote;
 
     [SerializeField]
     private GameObject[] guests;
@@ -35,6 +37,9 @@ public class GenerateLine : MonoBehaviour
     float delayTimer = 0f;
 
     public Vector3 target;
+
+    [SerializeField]
+    private GenerateNames gNames;
 
     void ChangeState(LineState _newState)
     {
@@ -63,6 +68,7 @@ public class GenerateLine : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        gNames = GetComponent<GenerateNames>();
         x = 0;
         moving = false;
         for (int i = 0; i < guests.Length; i++)
@@ -160,6 +166,8 @@ public class GenerateLine : MonoBehaviour
     {
         guests[x].GetComponent<AnimateGuest>().target = new Vector3(5, guests[x].transform.position.y, guests[x].transform.position.z);
         guestName.text = guests[x].GetComponentInChildren<GenerateCharacter>().WholeName;
+        quote.text = '"' + gNames.quotes[Random.Range(0, gNames.quotes.Count)] + '"';
+
 
         xPos = 1;
         for (y = x + 1; y < guests.Length; y++)

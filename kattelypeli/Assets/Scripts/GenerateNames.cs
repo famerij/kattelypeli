@@ -12,6 +12,8 @@ public class GenerateNames : MonoBehaviour
     public List<string> surnameList = new List<string>();
     public List<string> firstTitleList = new List<string>();
     public List<string> secondTitleList = new List<string>();
+    public List<string> quotes = new List<string>();
+
 
     // Use this for initialization
     void Awake()
@@ -20,6 +22,7 @@ public class GenerateNames : MonoBehaviour
         Surnames();
         FirstTitle();
         SecondTitle();
+        Quotes();
     }
 
 
@@ -99,6 +102,27 @@ public class GenerateNames : MonoBehaviour
                 while ((line = sr.ReadLine()) != null)
                 {
                     secondTitleList.Add(line);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // Let the user know what went wrong.
+            Console.WriteLine("The file could not be read:");
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    void Quotes()
+    {
+        try
+        {
+            using (StreamReader sr = new StreamReader(Path.Combine(Application.dataPath, "Names/Quotes.txt"), Encoding.GetEncoding("ISO-8859-1")))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    quotes.Add(line);
                 }
             }
         }
