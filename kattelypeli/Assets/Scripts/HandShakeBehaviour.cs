@@ -49,8 +49,8 @@ public class HandShakeBehaviour : MonoBehaviour
     private List<GameObject> handShakeAnimations;
     [SerializeField]
     private List<Sprite> playerHandSprites;
-    [SerializeField]
-    private Sprite playerChangeSprite;
+    //[SerializeField]
+    //private Sprite playerChangeSprite;
     [SerializeField]
     private List<Sprite> otherHandSprites;
 
@@ -103,12 +103,12 @@ public class HandShakeBehaviour : MonoBehaviour
                 float failedShakeRatio = (float)failedShakes / gestureSequence.Length;
                 bool failed = false;
                 Debug.Log("FailedShakeRatio = " + failedShakeRatio);
-                if (failedShakeRatio == 1f)
+                if (failedShakeRatio == 1f || patienceTimer <= 0f)
                 {
                     disappointedGuests++;
                     ChangeState(HandShakeState.GameOver);
                 }
-                if (failedShakeRatio > .5f)
+                if (failedShakeRatio > .5f || patienceTimer <= 0f)
                 {
                     disappointedGuests++;
                     Debug.Log("Guest left disappointed");
@@ -148,7 +148,7 @@ public class HandShakeBehaviour : MonoBehaviour
         gestureSequence = new int[sequenceCount];
         for (int i = 0; i < gestureSequence.Length; i++)
         {
-            gestureSequence[i] = Random.Range(0, playerHandSprites.Count);
+             gestureSequence[i] = Random.Range(0, playerHandSprites.Count);
         }
 
         currentGestureSequenceIndex = 0;
@@ -171,8 +171,8 @@ public class HandShakeBehaviour : MonoBehaviour
     void Update()
     {
         // Debug
-        if (Input.GetKeyDown(KeyCode.Return))
-            StartHandShakeSequence(null);
+        //if (Input.GetKeyDown(KeyCode.Return))
+        //    StartHandShakeSequence(null);
 
         if (currentState == HandShakeState.Done || currentState == HandShakeState.GameOver)
         {
@@ -199,22 +199,34 @@ public class HandShakeBehaviour : MonoBehaviour
 
     void HandleInput()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             if (playerHand.CurrentSpriteIndex != 0)
-                StartCoroutine(ChangePlayerHandSprite(0));
+                ChangePlayerHandSprite(0);
             StartCoroutine(CheckGestureDelayed());
         }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             if (playerHand.CurrentSpriteIndex != 1)
-                StartCoroutine(ChangePlayerHandSprite(1));
+                ChangePlayerHandSprite(1);
             StartCoroutine(CheckGestureDelayed());
         }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             if (playerHand.CurrentSpriteIndex != 2)
-                StartCoroutine(ChangePlayerHandSprite(2));
+                ChangePlayerHandSprite(2);
+            StartCoroutine(CheckGestureDelayed());
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            if (playerHand.CurrentSpriteIndex != 3)
+                ChangePlayerHandSprite(3);
+            StartCoroutine(CheckGestureDelayed());
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            if (playerHand.CurrentSpriteIndex != 4)
+                ChangePlayerHandSprite(4);
             StartCoroutine(CheckGestureDelayed());
         }
         //else
@@ -229,13 +241,12 @@ public class HandShakeBehaviour : MonoBehaviour
         //}
     }
 
-    IEnumerator ChangePlayerHandSprite(int index)
+    void ChangePlayerHandSprite(int index)
     {
-        playerHand.handSpriteRenderer.enabled = true;
-        playerHand.handSpriteRenderer.sprite = playerChangeSprite;
-        yield return new WaitForSeconds(.1f);
+        decreasePatience = false;
         if (index != -1)
             playerHand.SetSprite(index, playerHandSprites[index]);
+        playerHand.handSpriteRenderer.enabled = true;
     }
 
     IEnumerator RunSuccessAnimation()
